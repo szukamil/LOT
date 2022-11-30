@@ -1,0 +1,21 @@
+services:
+  docker-mysql:
+    platform: linux/x86_64
+    image: mysql:5.7
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_PASSWORD: password
+      MYSQL_USER: user
+      MYSQL_DATABASE: lot_system
+    ports:
+      - 3306:3306
+
+  lot_service:
+    build: .
+    depends_on:
+      - docker-mysql
+    command: bash -c "/usr/wait-for-it.sh --timeout=0 docker-mysql:3306 && java -jar target/LOT-0.0.1-SNAPSHOT.jar"
+    ports:
+      - 8090:8090
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://docker-mysql:3306/lot_system?autoReconnect=true&useSSL=false
